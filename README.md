@@ -23,6 +23,28 @@ DroneTones is a public Creative Commons work, available at <https://drone.tonefl
 
 The screenshot at [`assets/screenshot.png`](assets/screenshot.png) is included for illustration. See [`assets/CREDITS.md`](assets/CREDITS.md).
 
+## Verifying releases
+
+Releases from `v0.1.1` onward are signed with my SSH signing key. (v0.1 predates this convention and is unsigned.) Verifying takes stock git plus a working internet connection.
+
+Signing key fingerprint: `SHA256:wjXZwnbq9RfqZ5SfqvBZCPK/Ozy2oU5G/i9CrXzWfUI`. The same key is served at <https://github.com/vjcharles.keys>.
+
+```sh
+TAG=v0.1.1   # the release you cloned
+
+# 1. Build an allowed_signers file from my GitHub keys
+curl -fsS https://github.com/vjcharles.keys \
+  | awk '/^ssh-/ {print "vjcharles@gmail.com", $1, $2}' \
+  > /tmp/vjcharles_signers
+
+# 2. Verify the tag
+git -c gpg.ssh.allowedSignersFile=/tmp/vjcharles_signers verify-tag "$TAG"
+```
+
+A valid release prints `Good "git" signature` and `vjcharles@gmail.com`. If you see `No principal matched` or `bad signature`, do not trust the release.
+
+This follows a small convention I'm developing called **signed-skills**: a way to distribute AI skill folders with cryptographic integrity and verifiable authorship using only signed git tags. Spec repo coming soon. A valid signature proves I released exactly these bytes; it does not prove the code is safe to run. Treat as you would an npm or Debian publisher.
+
 ## License
 
 [MIT](LICENSE) for the skill's prose, scripts, and recipe format. The screenshot is separately credited; see `LICENSE`.
