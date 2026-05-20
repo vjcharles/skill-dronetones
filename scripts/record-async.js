@@ -1,7 +1,7 @@
-// record-async.js — agent-driven variant of record.js.
+// record-async.js: agent-driven variant of record.js.
 //
-// Same capture as record.js (Tone.Master → MediaStreamDestination →
-// MediaRecorder → webm/opus anchor-download), but wrapped in an awaitable
+// Same capture as record.js (Tone.Master to MediaStreamDestination to
+// MediaRecorder to webm/opus anchor-download), but wrapped in an awaitable
 // Promise. The IIFE doesn't return until the file has been triggered.
 //
 // Why two versions:
@@ -16,7 +16,7 @@
 (async () => {
   const DURATION_MS = 60_000;
   if (typeof Tone === 'undefined' || !Tone.Master) {
-    throw new Error('Tone.js (13.x) not available on this page — is DroneTones loaded?');
+    throw new Error('Tone.js (13.x) not available on this page; is DroneTones loaded?');
   }
   const dest = Tone.context.createMediaStreamDestination();
   Tone.Master.connect(dest);

@@ -27,7 +27,7 @@
 
   // Tuning %: read the dedicated display element directly.
   // (Earlier version read parent .tuning-controls textContent and tried to
-  // strip the +/- buttons' text via regex — but that also killed the sign of
+  // strip the +/- buttons' text via regex, but that also killed the sign of
   // negative values and zeroed positives.)
   let tuning_pct = 0;
   const tuningEl = document.querySelector('#tuning_value');

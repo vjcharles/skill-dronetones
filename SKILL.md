@@ -7,11 +7,21 @@ description: Generative drone synthesizer in the browser at drone.toneflow.io. U
 
 **Source:** <https://drone.toneflow.io/> · Creative Commons 2019.
 
-> **v0.1 scope.** This release ships **manual-learning** mode end-to-end. The **agent-driven** sections below describe the design and reference a companion headless-browser CLI (`browser-runner`) that is not yet published. Treat those parts as the **v0.2 roadmap** — the control-ID table, scripts, and recipe format are usable today via paste-in-devtools; the headless pipeline lands when the runner ships.
+> **v0.1 scope.** This release ships **manual-learning** mode end-to-end. The **agent-driven** sections below describe the design and reference a companion headless-browser CLI (`browser-runner`) that is not yet published. Treat those parts as the **v0.2 roadmap**. The control-ID table, scripts, and recipe format are usable today via paste-in-devtools; the headless pipeline lands when the runner ships.
 
 ## Identity
 
-DroneTones is a **generative drone synthesizer**. Press Play and hear a slowly-evolving wash of up to 8 voices that breathe in and out at random intervals — each voice re-rolled (tone color, FX rate/depth, timing) just before it swells. Closer to a *meditation engine* than a playable keyboard: you shape the probability space, the instrument plays itself.
+DroneTones is a **generative drone synthesizer**. Press Play and hear a slowly-evolving wash of up to 8 voices that breathe in and out at random intervals, each voice re-rolled (tone color, FX rate/depth, timing) just before it swells. Closer to a *meditation engine* than a playable keyboard: you shape the probability space, the instrument plays itself.
+
+## What you take away
+
+A session with this skill yields three durable artifacts:
+
+1. **The listen.** An agent-narrated tour of the instrument while you shape a drone you actually like.
+2. **A `.webm` audio file** of the take, captured straight from Tone.js's master output (`scripts/record.js`). Yours to keep, loop, layer, score against.
+3. **A recipe JSON** of every panel setting that produced it (`scripts/scrape-recipe.js`). Reproducible, portable, shareable: send the JSON to a friend and they hear the same drone.
+
+Listen + file + recipe = a complete, sharable drone session in two small artifacts.
 
 ## Modes
 
@@ -21,17 +31,17 @@ This skill supports two collaboration modes. Pick before starting.
 Human at the GUI, Claude narrates: what to click, what to listen for, what the controls mean. Output is a take *plus* the human's improved understanding of the instrument. Slow but pedagogical. Use the **First 60 seconds** + **Mental model** sections below.
 
 ### agent-driven (Claude-driven)
-Claude operates the page headlessly via **`browser-runner`** — a companion headless-browser CLI (not yet published; see *v0.1 scope* note above). Three sub-variants:
+Claude operates the page headlessly via **`browser-runner`**, a companion headless-browser CLI (not yet published; see *v0.1 scope* note above). Three sub-variants:
 
-- **2a. solo + proof** — Claude rolls multiple takes autonomously; human listens and picks.
-- **2b. brief + execute** — Human and Claude discuss the target sound; Claude dials and captures.
-- **2c. dialog tweaks** — Claude has a take going; human says "more shimmer, less low end"; Claude translates to panel deltas and re-rolls. ~70s round-trip per iteration.
+- **2a. solo + proof.** Claude rolls multiple takes autonomously; human listens and picks.
+- **2b. brief + execute.** Human and Claude discuss the target sound; Claude dials and captures.
+- **2c. dialog tweaks.** Claude has a take going; human says "more shimmer, less low end"; Claude translates to panel deltas and re-rolls. ~70s round-trip per iteration.
 
 All three need the **Programmatic dial** reference (control IDs, below), the `scrape-recipe.js` + `record-async.js` scripts, and a recipe YAML for `browser-runner run`.
 
 ## Instrument type
 
-Generative additive-synth drone cloud. 8 voices. Web Audio via **Tone.js 13.4.10**. No MIDI, no keyboard input — entirely parameter-driven.
+Generative additive-synth drone cloud. 8 voices. Web Audio via **Tone.js 13.4.10**. No MIDI, no keyboard input. Entirely parameter-driven.
 
 ## Mental model & controls
 
@@ -42,31 +52,31 @@ Generative additive-synth drone cloud. 8 voices. Web Audio via **Tone.js 13.4.10
 **Root pitch:** `C2 … B2` (chromatic). **Tuning %:** ± cents detune from equal temperament; **1 click of `+`/`-` = 1 cent** (calibrated agent-driven run).
 
 **Synth Overtone Options** (re-rolled per voice per swell):
-- `Sawtooth` — all overtones, decreasing volume (classical buzzy saw spectrum). **Default-on; the app appears to require at least one overtone mode active at all times — see Known quirks.**
-- `Full Vol` (`#: N`) — N overtones at maximum volume (organ-like, harsh stacks).
-- `Random Vol` (`#: N`) — N overtones at random volumes (sparser flavors).
-- `Clusters` (`#: N`, `Density: D`) — N clusters of overtones at random volumes spread across the series by density. The most "fingerprint-able" timbre.
+- `Sawtooth`: all overtones, decreasing volume (classical buzzy saw spectrum). **Default-on; the app appears to require at least one overtone mode active at all times. See Known quirks.**
+- `Full Vol` (`#: N`): N overtones at maximum volume (organ-like, harsh stacks).
+- `Random Vol` (`#: N`): N overtones at random volumes (sparser flavors).
+- `Clusters` (`#: N`, `Density: D`): N clusters of overtones at random volumes spread across the series by density. The most "fingerprint-able" timbre.
 
 **Synth Effects Options** (each voice gets a random value within `[0, set value]`):
-- `Vibrato` — `Rate`, `Depth`.
-- `Filter` (auto-filter) — `Rate`, `Depth`.
+- `Vibrato`: `Rate`, `Depth`.
+- `Filter` (auto-filter): `Rate`, `Depth`.
 
 **Timing** (independent randomized ranges per voice):
-- `Rise` `Min`/`Max` — swell-in duration window.
-- `Fall` `Min`/`Max` — swell-out duration window.
-- `Rest` `Min`/`Max` — silence between this voice's cycles.
-- Inverting min > max is allowed; the app re-tracks them. **Timing is the most fragile knob — touch last, in small steps.** Pushing Rest tight produces dropouts and can put the scheduler into an unrecoverable `non-finite` state requiring page refresh.
+- `Rise` `Min`/`Max`: swell-in duration window.
+- `Fall` `Min`/`Max`: swell-out duration window.
+- `Rest` `Min`/`Max`: silence between this voice's cycles.
+- Inverting min > max is allowed; the app re-tracks them. **Timing is the most fragile knob; touch last, in small steps.** Pushing Rest tight produces dropouts and can put the scheduler into an unrecoverable `non-finite` state requiring page refresh.
 
 `Reset Default Settings` returns the panel.
 
 ## First 60 seconds (manual-learning)
 
 1. Open `https://drone.toneflow.io/`.
-2. Hit **Play**. You should hear a slow drone evolving immediately (defaults are conservative — Sawtooth, mild Rise/Fall/Rest ranges).
+2. Hit **Play**. You should hear a slow drone evolving immediately (defaults are conservative: Sawtooth, mild Rise/Fall/Rest ranges).
 3. Change **Root Pitch** to something low (`C2`) to taste the bottom.
-4. Toggle `Clusters` on, `#` ≈ 3, `Density` ≈ 0.5 — listen for the spectral motion.
-5. Tighten `Rest` `Max` to ~3 only if you're brave — the cloud thickens, but see the timing warning above.
-6. Open the JS console (`F12`) — the app logs the generated overtone array per voice on each new swell.
+4. Toggle `Clusters` on, `#` ≈ 3, `Density` ≈ 0.5. Listen for the spectral motion.
+5. Tighten `Rest` `Max` to ~3 only if you're brave. The cloud thickens, but see the timing warning above.
+6. Open the JS console (`F12`). The app logs the generated overtone array per voice on each new swell.
 
 ## Programmatic dial (agent-driven)
 
@@ -74,7 +84,7 @@ Every control has a stable ID (discovered via `browser-runner inspect`). Setting
 
 | Control               | Selector                            | Type          | Notes |
 |----------------------|--------------------------------------|---------------|-------|
-| Play / Stop          | `#start_stop`                        | button        | Toggle. Stop → Play can crash audio context — see Known quirks. |
+| Play / Stop          | `#start_stop`                        | button        | Toggle. Stop, then Play can crash audio context; see Known quirks. |
 | Reset                | `#reset`                             | button        | Returns panel to defaults. |
 | Voice slots 1–8      | `select:nth-of-type(1)` … `(8)`      | select        | Values: `Off`/`Sub`/`Root`/`m2`/`M2`/`m3`/`M3`/`P4`/`#4/b5`/`P5`/`m6`/`M6`/`m7`/`M7`/`8va` |
 | Root pitch           | `#base_pitch`                        | select        | `C2` … `B2` (chromatic, 12 values) |
@@ -87,17 +97,17 @@ Every control has a stable ID (discovered via `browser-runner inspect`). Setting
 | Clusters on/off + # + density | `#toggleClusters`, `#clustersRange`, `#clustersDensity` | checkbox + num + num | |
 | Vibrato on/off + rate + depth | `#toggleVibrato`, `#vibratoRate`, `#vibratoDepth` | checkbox + num + num | |
 | Filter on/off + rate + depth  | `#toggleFilter`, `#filterRate`, `#filterDepth`    | checkbox + num + num | |
-| Rise/Fall/Rest Min/Max | `#riseMin`, `#riseMax`, `#fallMin`, `#fallMax`, `#restMin`, `#restMax` | num | Fragile — see Mental model |
+| Rise/Fall/Rest Min/Max | `#riseMin`, `#riseMax`, `#fallMin`, `#fallMax`, `#restMin`, `#restMax` | num | Fragile; see Mental model |
 
-`Tone` is on `window` at version `13.4.10`. Audio reachable via **`Tone.Master`** (not `Tone.getDestination()` — that's a 14.x API).
+`Tone` is on `window` at version `13.4.10`. Audio reachable via **`Tone.Master`** (not `Tone.getDestination()`, which is a 14.x API).
 
 ## Scripts in this skill
 
 Three scripts in `scripts/`. All three are JS expressions usable both as paste-in-devtools and as `browser-runner` evals.
 
-- **`scrape-recipe.js`** — reads the panel state and emits a recipe JSON (voices, root pitch, tuning %, overtones, FX, timing). Logs + copies to clipboard via devtools `copy()`.
-- **`record.js`** — captures the page's Tone.js master output for `DURATION_MS` (default 60s) and auto-downloads `dronetones-<timestamp>.webm`. **Fire-and-forget**; right for paste-in-devtools where the human waits visually. Requires Play to be running.
-- **`record-async.js`** — same as `record.js` but wraps the recording in a Promise the IIFE awaits. **Right for recipe runners** that need `capture_download` to wait for the delayed download fire.
+- **`scrape-recipe.js`** reads the panel state and emits a recipe JSON (voices, root pitch, tuning %, overtones, FX, timing). Logs + copies to clipboard via devtools `copy()`.
+- **`record.js`** captures the page's Tone.js master output for `DURATION_MS` (default 60s) and auto-downloads `dronetones-<timestamp>.webm`. **Fire-and-forget**; right for paste-in-devtools where the human waits visually. Requires Play to be running.
+- **`record-async.js`** is the same as `record.js` but wraps the recording in a Promise the IIFE awaits. **Right for recipe runners** that need `capture_download` to wait for the delayed download fire.
 
 ### Use in chat
 
@@ -108,11 +118,11 @@ When operating with a Claude in the room:
 
 ### Default destination
 
-Outputs (recipe JSON + webm takes) default to **the current working directory**, or `./trials/dronetones/` if the calling project has that convention. Don't assume any specific session path — this skill is project-agnostic.
+Outputs (recipe JSON + webm takes) default to **the current working directory**, or `./trials/dronetones/` if the calling project has that convention. Don't assume any specific session path; this skill is project-agnostic.
 
 ## Known quirks
 
-- **Stop → Play can put the audio context into a bad state.** Hitting Stop then Play sometimes leaves the page silent; eventually `TypeError: The provided value is non-finite` fires in the console and the scheduler is dead until a page refresh. Recovery: refresh the page; re-apply your recipe.
+- **Stop, then Play can put the audio context into a bad state.** Hitting Stop then Play sometimes leaves the page silent; eventually `TypeError: The provided value is non-finite` fires in the console and the scheduler is dead until a page refresh. Recovery: refresh the page; re-apply your recipe.
 - **Overtone modes are mutually-required.** The app keeps at least one overtone mode (Sawtooth / Full Vol / Random Vol / Clusters) checked at all times. To switch from Sawtooth (the default) to anything else: **enable the target overtone first, *then* disable Sawtooth.** Toggling Sawtooth off while it's the only one on silently re-checks it.
 - **Timing is fragile.** Pushing Rest `Min`/`Max` tight (e.g. 1/3) crashes the scheduler. Default windows (Rise/Fall 4/8, Rest 2/6) are the safe envelope. Prefer thickening the cloud via more active voices, vibrato/filter, or cluster count rather than tighter Rest.
 - **`browser-runner save_stdout` + `capture_download` mutual interaction.** When an `eval` step uses both, `save_stdout` may not write. The downloaded file lands correctly; the eval's return value is the casualty. Filed as a follow-up; for now, choose one or the other per step.
@@ -121,7 +131,7 @@ Outputs (recipe JSON + webm takes) default to **the current working directory**,
 ## Web-audio primitives
 
 - **Tone.js 13.4.10** (`Tone.min.js` from cdnjs) is the audio engine. Each voice is built around `Tone.Oscillator` / `Tone.PolySynth` with custom partials, fed through `Tone.Vibrato` and `Tone.AutoFilter`, with `Tone.Gain` envelopes for the rise/fall swell.
-- Voice generation is timer-driven JS (random durations within the user ranges) rather than note-scheduled — hence the timing-fragility warning.
+- Voice generation is timer-driven JS (random durations within the user ranges) rather than note-scheduled, hence the timing-fragility warning.
 
 ## Integration notes
 
@@ -136,12 +146,12 @@ droneTones/Controller.js
 droneTones/App.js       ← entry point
 ```
 
-- Audio capture: `Tone.Master.connect(Tone.context.createMediaStreamDestination())` → `MediaRecorder` → blob download. See `scripts/record.js` / `record-async.js`.
-- The console-logged overtone arrays are *the* serialization of timbre — intercepting them gives full reproduction of any drone session.
+- Audio capture: `Tone.Master.connect(Tone.context.createMediaStreamDestination())` then `MediaRecorder` then blob download. See `scripts/record.js` / `record-async.js`.
+- The console-logged overtone arrays are *the* serialization of timbre; intercepting them gives full reproduction of any drone session.
 
 ## Calibration & shareability
 
-- **Fun:** high. One click → ambient cloud. Hard to make it sound bad.
+- **Fun:** high. One click, ambient cloud. Hard to make it sound bad.
 - **Integratability:** very high. Uncompressed JS, Tone.js, MVC. Every control has a stable ID. Tone.js audio capture works in headless Chrome. Full agent-driven automation confirmed.
 - **Shareability:** very high. Pure browser, no install, instant-on. Recipe JSON + webm take = a complete, reproducible drone in two small files.
 

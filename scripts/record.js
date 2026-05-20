@@ -1,4 +1,4 @@
-// DroneTones audio capture — run in devtools console AFTER pressing Play on the panel.
+// DroneTones audio capture. Run in devtools console AFTER pressing Play on the panel.
 //
 // Captures DURATION_MS of audio from the page's Tone.js master output and
 // auto-downloads as dronetones-<timestamp>.webm.
@@ -12,7 +12,7 @@
   const DURATION_MS = 60_000;
 
   if (typeof Tone === 'undefined' || !Tone.Master) {
-    throw new Error('Tone.js (13.x) not available on this page — is DroneTones loaded?');
+    throw new Error('Tone.js (13.x) not available on this page; is DroneTones loaded?');
   }
 
   const dest = Tone.context.createMediaStreamDestination();
