@@ -1,0 +1,29 @@
+# Canonical DroneTones take: scrape the panel, press Play, record, stop.
+#
+# Run with:
+#   node <browser-runner>/scripts/bin/browser-runner.js \
+#     run <this file> --out <out-dir>
+#
+# Outputs (under --out):
+#   recipe.json     panel state at the start of the take
+#   take.webm       audio capture (length set by DURATION_MS in record-async.js)
+#
+# eval: paths resolve against this file's directory, so the canonical scripts
+# alongside this recipe are referenced by bare filename.
+
+url: https://drone.toneflow.io/
+headless: true
+ready: "typeof Tone !== 'undefined' && !!Tone.Master"
+
+steps:
+  - eval: scrape-recipe.js
+    save_stdout: recipe.json
+
+  - click: "#start_stop"
+  - sleep: 2s
+
+  - eval: record-async.js
+    capture_download: "dronetones-*.webm"
+    capture_download_to: take.webm
+
+  - click: "#start_stop"

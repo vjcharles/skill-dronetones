@@ -1,13 +1,13 @@
 ---
 name: dronetones
 description: Generative drone synthesizer in the browser at drone.toneflow.io. Up to 8 voices swell and fade with randomized timing, pitched by interval from a root, with randomized overtone shapes (sawtooth, full-vol, random-vol, clusters) and per-voice vibrato + auto-filter. Web Audio via Tone.js, single Play button, no MIDI. Use when you want an instant generative ambient drone, an ear-training surface for overtone series, or a one-click audio bed for a session. Two collaboration modes: manual-learning (human at the GUI, Claude narrates) and agent-driven (Claude operates the page via browser-runner).
+depends_on:
+  - browser-runner
 ---
 
 ![DroneTones interface](assets/screenshot.png)
 
 **Source:** <https://drone.toneflow.io/> · Creative Commons 2019.
-
-> **v0.1 scope.** This release ships **manual-learning** mode end-to-end. The **agent-driven** sections below describe the design and reference a companion headless-browser CLI (`browser-runner`) that is not yet published. Treat those parts as the **v0.2 roadmap**. The control-ID table, scripts, and recipe format are usable today via paste-in-devtools; the headless pipeline lands when the runner ships.
 
 ## Identity
 
@@ -31,13 +31,31 @@ This skill supports two collaboration modes. Pick before starting.
 Human at the GUI, Claude narrates: what to click, what to listen for, what the controls mean. Output is a take *plus* the human's improved understanding of the instrument. Slow but pedagogical. Use the **First 60 seconds** + **Mental model** sections below.
 
 ### agent-driven (Claude-driven)
-Claude operates the page headlessly via **`browser-runner`**, a companion headless-browser CLI (not yet published; see *v0.1 scope* note above). Three sub-variants:
+Claude operates the page headlessly via **`browser-runner`**, the primitive skill this one depends on (see `depends_on:` in the frontmatter). Install it alongside this skill; invoke its binary directly at `<browser-runner>/scripts/bin/browser-runner.js`.
+
+**Use the canonical scripts in `scripts/`. Do not write your own.**
+
+- `scrape-recipe.js` — captures panel state to a JSON recipe.
+- `record-async.js` — records audio to `dronetones-<ts>.webm`. **To change duration, edit `DURATION_MS` at the top of the file** (default 60_000 ms). Do not fork.
+- `record.js` — fire-and-forget variant for paste-in-devtools only; do not use in recipes.
+
+A canonical recipe lives at `scripts/take.yaml`. To roll a take:
+
+```bash
+node <browser-runner>/scripts/bin/browser-runner.js \
+  run <dronetones>/scripts/take.yaml \
+  --out tmp/dronetones/
+```
+
+Recipe `eval:` paths resolve relative to the recipe file, so `take.yaml` references the canonical scripts by bare filename. Outputs land under `--out`.
+
+Three sub-variants:
 
 - **2a. solo + proof.** Claude rolls multiple takes autonomously; human listens and picks.
 - **2b. brief + execute.** Human and Claude discuss the target sound; Claude dials and captures.
 - **2c. dialog tweaks.** Claude has a take going; human says "more shimmer, less low end"; Claude translates to panel deltas and re-rolls. ~70s round-trip per iteration.
 
-All three need the **Programmatic dial** reference (control IDs, below), the `scrape-recipe.js` + `record-async.js` scripts, and a recipe YAML for `browser-runner run`.
+All three need the **Programmatic dial** reference (control IDs, below).
 
 ## Instrument type
 
@@ -103,11 +121,12 @@ Every control has a stable ID (discovered via `browser-runner inspect`). Setting
 
 ## Scripts in this skill
 
-Three scripts in `scripts/`. All three are JS expressions usable both as paste-in-devtools and as `browser-runner` evals.
+Four files in `scripts/`. All three JS files are valid expressions usable both as paste-in-devtools and as `browser-runner` evals.
 
-- **`scrape-recipe.js`** reads the panel state and emits a recipe JSON (voices, root pitch, tuning %, overtones, FX, timing). Logs + copies to clipboard via devtools `copy()`.
-- **`record.js`** captures the page's Tone.js master output for `DURATION_MS` (default 60s) and auto-downloads `dronetones-<timestamp>.webm`. **Fire-and-forget**; right for paste-in-devtools where the human waits visually. Requires Play to be running.
-- **`record-async.js`** is the same as `record.js` but wraps the recording in a Promise the IIFE awaits. **Right for recipe runners** that need `capture_download` to wait for the delayed download fire.
+- **`take.yaml`** — canonical `browser-runner` recipe: scrape panel, press Play, record, stop. See the agent-driven section above for invocation.
+- **`scrape-recipe.js`** — reads panel state and emits a recipe JSON (voices, root pitch, tuning %, overtones, FX, timing). Logs + copies to clipboard via devtools `copy()`.
+- **`record.js`** — captures Tone.js master output for `DURATION_MS` (default 60s) and auto-downloads `dronetones-<ts>.webm`. **Fire-and-forget**; right for paste-in-devtools where the human waits visually. Requires Play to be running.
+- **`record-async.js`** — same as `record.js` but wraps the recording in a Promise the IIFE awaits. **Right for recipe runners** that need `capture_download` to wait for the delayed download fire. Change recording length by editing `DURATION_MS` at the top of the file.
 
 ### Use in chat
 

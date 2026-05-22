@@ -12,10 +12,10 @@ Press Play and hear up to 8 voices swell and fade with randomized timing, pitche
 
 ## What this skill teaches an agent
 
-- **Narrate the instrument** to a human at the GUI (manual-learning mode). Shipped in v0.1.
-- **Operate the instrument headlessly** via a companion CLI (agent-driven mode, three sub-variants). Designed and documented, but the companion CLI is **not yet published**. Treat agent-driven as the v0.2 roadmap.
+- **Narrate the instrument** to a human at the GUI (manual-learning mode).
+- **Operate the instrument headlessly** via the `browser-runner` primitive skill this one depends on (agent-driven mode, three sub-variants).
 
-The full skill lives in [`SKILL.md`](SKILL.md). Helper scripts (panel scrape, audio capture) are in [`scripts/`](scripts/), usable today via paste-in-devtools.
+The full skill lives in [`SKILL.md`](SKILL.md). Helper scripts (panel scrape, audio capture) and the canonical recipe (`take.yaml`) are in [`scripts/`](scripts/).
 
 ## Attribution
 
