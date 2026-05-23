@@ -5,8 +5,11 @@
 #     run <this file> --out <out-dir>
 #
 # Outputs (under --out):
-#   recipe.json     panel state at the start of the take
-#   take.webm       audio capture (length set by DURATION_MS in record-async.js)
+#   recipe-NNN.json   panel state at the start of the take
+#   take-NNN.webm     audio capture (length set by DURATION_MS in record-async.js)
+#
+# {n} expands to a 3-digit index based on existing files in --out, so repeated
+# runs into the same dir produce recipe-001/take-001, recipe-002/take-002, ...
 #
 # eval: paths resolve against this file's directory, so the canonical scripts
 # alongside this recipe are referenced by bare filename.
@@ -17,13 +20,13 @@ ready: "typeof Tone !== 'undefined' && !!Tone.Master"
 
 steps:
   - eval: scrape-recipe.js
-    save_stdout: recipe.json
+    save_stdout: recipe-{n}.json
 
   - click: "#start_stop"
   - sleep: 2s
 
   - eval: record-async.js
     capture_download: "dronetones-*.webm"
-    capture_download_to: take.webm
+    capture_download_to: take-{n}.webm
 
   - click: "#start_stop"

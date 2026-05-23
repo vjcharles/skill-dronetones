@@ -47,7 +47,28 @@ node <browser-runner>/scripts/bin/browser-runner.js \
   --out tmp/dronetones/
 ```
 
-Recipe `eval:` paths resolve relative to the recipe file, so `take.yaml` references the canonical scripts by bare filename. Outputs land under `--out`.
+Recipe `eval:` paths resolve relative to the recipe file, so `take.yaml` references the canonical scripts by bare filename. Outputs land under `--out`. Repeated runs into the same `--out` are numbered: `take-001.webm`, `take-002.webm`, etc.
+
+#### Session-authored recipes
+
+For one-off recipes (custom step order, extra probes), author the YAML anywhere and use **absolute paths** to the canonical scripts so `eval:` resolves correctly regardless of where the YAML lives:
+
+```yaml
+url: https://drone.toneflow.io/
+headless: true
+ready: "typeof Tone !== 'undefined' && !!Tone.Master"
+steps:
+  - eval: /absolute/path/to/dronetones/scripts/scrape-recipe.js
+    save_stdout: recipe-{n}.json
+  - click: "#start_stop"
+  - sleep: 2s
+  - eval: /absolute/path/to/dronetones/scripts/record-async.js
+    capture_download: "dronetones-*.webm"
+    capture_download_to: take-{n}.webm
+  - click: "#start_stop"
+```
+
+The canonical `scripts/take.yaml` works because it lives next to the scripts. Your session YAML can live anywhere if it points at the skill's `scripts/` dir absolutely. Do not write a relative path that mirrors your cwd, it will double-apply against the recipe file's directory and miss.
 
 Three sub-variants:
 
