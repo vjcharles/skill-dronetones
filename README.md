@@ -10,6 +10,25 @@ Press Play and hear up to 8 voices swell and fade with randomized timing, pitche
 2. **A `.webm` audio file** of the take, captured straight from Tone.js's master output. Yours to keep, loop, layer, score against.
 3. **A recipe JSON** of every panel setting that produced it. Reproducible and shareable: send the JSON, your friend hears the same drone.
 
+## Getting started
+
+**Install.** Download the latest release zip and unpack into your Claude Code skills directory:
+
+```bash
+curl -L https://github.com/vjcharles/skill-dronetones/releases/latest/download/dronetones.zip -o /tmp/dronetones.zip
+unzip /tmp/dronetones.zip -d ~/.claude/skills/
+```
+
+That's the whole install for the **interactive tutorial mode**. (If you also want Claude to operate the synth headlessly, install `browser-runner` too: see [`SKILL.md`](SKILL.md) → *First-time setup*.)
+
+**Begin the tutorial.** In a Claude Code session, type:
+
+> *"Use the dronetones skill to walk me through the synth."*
+
+Or any close variant: *"teach me dronetones"*, *"let's explore dronetones together"*, *"open dronetones in learn mode"*. Claude will direct you to <https://drone.toneflow.io/>, narrate the panel, and help you shape a drone you like. Hit Play when it tells you to; ask questions as you go.
+
+**Capture the take.** When you've got a sound you want to keep, ask: *"capture this as a take"*. Claude will save the `.webm` audio plus a recipe JSON of every setting, so you can re-summon the same drone later.
+
 ## What this skill teaches an agent
 
 - **Narrate the instrument** to a human at the GUI (manual-learning mode).
