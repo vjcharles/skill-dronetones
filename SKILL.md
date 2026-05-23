@@ -31,7 +31,27 @@ This skill supports two collaboration modes. Pick before starting.
 Human at the GUI, Claude narrates: what to click, what to listen for, what the controls mean. Output is a take *plus* the human's improved understanding of the instrument. Slow but pedagogical. Use the **First 60 seconds** + **Mental model** sections below.
 
 ### agent-driven (Claude-driven)
-Claude operates the page headlessly via **`browser-runner`**, the primitive skill this one depends on (see `depends_on:` in the frontmatter). Install it alongside this skill; invoke its binary directly at `<browser-runner>/scripts/bin/browser-runner.js`.
+Claude operates the page headlessly via **`browser-runner`**, the primitive skill this one depends on (see `depends_on:` in the frontmatter). Install it alongside this skill (instructions below); invoke its binary directly at `<browser-runner>/scripts/bin/browser-runner.js`.
+
+#### First-time setup
+
+Run once per host, before the first take. Download the latest release zip and unpack into your skills directory.
+
+```bash
+curl -L https://github.com/vjcharles/skill-browser-runner/releases/latest/download/browser-runner.zip -o /tmp/browser-runner.zip
+unzip /tmp/browser-runner.zip -d ~/.claude/skills/
+cd ~/.claude/skills/browser-runner && npm install
+```
+
+**Sandbox note:** if your Claude Code host sandboxes `~/.claude/skills/`, the `npm install` will fail with "Sandbox is blocking the install directory." Either pre-approve write access to that path in your host settings, or run the three commands above in a non-sandboxed terminal once. After install, recipe runs against the skill don't need write access there.
+
+`npm install` runs Playwright's `playwright install chromium` as a postinstall (~150MB download, one time per host). Verify:
+
+```bash
+node ~/.claude/skills/browser-runner/scripts/bin/browser-runner.js --help
+```
+
+Default channel is bundled Chromium. Do **not** set `BROWSER_RUNNER_CHANNEL=chrome` for dronetones; the `.webm` (VP8/VP9 + Opus) capture path works with bundled Chromium and avoids the system-Chrome profile lock conflicts.
 
 **Use the canonical scripts in `scripts/`. Do not write your own.**
 
@@ -69,6 +89,31 @@ steps:
 ```
 
 The canonical `scripts/take.yaml` works because it lives next to the scripts. Your session YAML can live anywhere if it points at the skill's `scripts/` dir absolutely. Do not write a relative path that mirrors your cwd, it will double-apply against the recipe file's directory and miss.
+
+#### Session artifact layout: `dial.js` + `take.yaml`
+
+When dialing in a specific sound, save two files side-by-side in your session output directory:
+
+- **`dial.js`** — a JS expression (IIFE) that sets the panel state for *this* take. Owns root pitch, voice intervals, overtone mode flags, FX rates/depths, timing windows. Use the selectors in the **Programmatic dial** table below.
+- **`take.yaml`** — a recipe that runs `dial.js`, presses Play, records via the canonical `record-async.js`, then stops.
+
+`eval:` requires a **file path** to a `.js` file; inline `eval: |` is rejected by the runner. Write the JS to `dial.js` and reference it by sibling filename:
+
+```yaml
+url: https://drone.toneflow.io/
+headless: true
+ready: "typeof Tone !== 'undefined' && !!Tone.Master"
+steps:
+  - eval: dial.js
+  - click: "#start_stop"
+  - sleep: 2s
+  - eval: /absolute/path/to/dronetones/scripts/record-async.js
+    capture_download: "dronetones-*.webm"
+    capture_download_to: take-{n}.webm
+  - click: "#start_stop"
+```
+
+Re-run with `browser-runner run take.yaml --out .` to roll another take with the same dial; edit `dial.js` to tweak the sound. The pair is portable: ship `dial.js` + `take.yaml` to anyone with the skill installed and they'll get the same drone.
 
 Three sub-variants:
 
@@ -166,7 +211,6 @@ Outputs (recipe JSON + webm takes) default to **the current working directory**,
 - **Overtone modes are mutually-required.** The app keeps at least one overtone mode (Sawtooth / Full Vol / Random Vol / Clusters) checked at all times. To switch from Sawtooth (the default) to anything else: **enable the target overtone first, *then* disable Sawtooth.** Toggling Sawtooth off while it's the only one on silently re-checks it.
 - **Timing is fragile.** Pushing Rest `Min`/`Max` tight (e.g. 1/3) crashes the scheduler. Default windows (Rise/Fall 4/8, Rest 2/6) are the safe envelope. Prefer thickening the cloud via more active voices, vibrato/filter, or cluster count rather than tighter Rest.
 - **`browser-runner save_stdout` + `capture_download` mutual interaction.** When an `eval` step uses both, `save_stdout` may not write. The downloaded file lands correctly; the eval's return value is the casualty. Filed as a follow-up; for now, choose one or the other per step.
-- **Concurrent `browser-runner` invocations serialize on macOS system Chrome.** Three parallel `run` calls actually ran sequentially. Likely a single-instance constraint on the user's Chrome profile. Fix: `BROWSER_RUNNER_CHANNEL=off` after `npm run install-browsers` (switches to bundled Playwright Chromium).
 
 ## Web-audio primitives
 
