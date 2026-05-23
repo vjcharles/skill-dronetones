@@ -4,6 +4,8 @@ An agent skill for **DroneTones**, a browser-based generative drone synthesizer 
 
 Press Play and hear up to 8 voices swell and fade with randomized timing, pitched by interval from a root, with randomized overtone shapes and per-voice vibrato + auto-filter. No install, no MIDI; pure Web Audio via Tone.js.
 
+> **Pairs with [`skill-browser-runner`](https://github.com/vjcharles/skill-browser-runner)** for agent-driven mode (the agent operates the synth headlessly). Interactive tutorial mode works on its own.
+
 ## What you take away from a session
 
 1. **The listen.** An agent-narrated tour while you shape a drone you actually like.
@@ -19,7 +21,17 @@ curl -L https://github.com/vjcharles/skill-dronetones/releases/latest/download/d
 unzip /tmp/dronetones.zip -d ~/.claude/skills/
 ```
 
-That's the whole install for the **interactive tutorial mode**. (If you also want the agent to operate the synth headlessly, install `browser-runner` too: see [`SKILL.md`](SKILL.md) → *First-time setup*.)
+That's the whole install for the **interactive tutorial mode**.
+
+For **agent-driven mode** (the agent operates the synth headlessly), also install the companion primitive `skill-browser-runner` (this skill declares it via `depends_on:` in the SKILL.md frontmatter):
+
+```bash
+curl -L https://github.com/vjcharles/skill-browser-runner/releases/latest/download/browser-runner.zip -o /tmp/browser-runner.zip
+unzip /tmp/browser-runner.zip -d ~/.claude/skills/
+cd ~/.claude/skills/browser-runner && npm install
+```
+
+`npm install` pulls Playwright + bundled Chromium (~150MB, one time per host). See [`SKILL.md`](SKILL.md) → *First-time setup* for sandbox notes.
 
 **Two ways in.** Pick the one that matches how you want to use the skill.
 
@@ -33,7 +45,7 @@ Close variants: *"teach me dronetones"*, *"let's explore dronetones together"*, 
 
 > `/dronetones make a tone and show me the file.`
 
-The agent opens the page headlessly, applies a dial, records a take, and hands you the `.webm`. Refine from there in chat: *"more cheerful"*, *"shorter"*, *"deeper bass"* (each turn rolls a new take). Requires `browser-runner` installed too; see [`SKILL.md`](SKILL.md) → *First-time setup*.
+The agent opens the page headlessly, applies a dial, records a take, and hands you the `.webm`. Refine from there in chat: *"more cheerful"*, *"shorter"*, *"deeper bass"* (each turn rolls a new take). Requires `skill-browser-runner` installed (see install section above).
 
 ## What this skill teaches an agent
 
