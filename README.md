@@ -12,22 +12,28 @@ Press Play and hear up to 8 voices swell and fade with randomized timing, pitche
 
 ## Getting started
 
-**Install.** Download the latest release zip and unpack into your Claude Code skills directory:
+**Install.** Download the latest release zip and unpack into your agent host's skills directory (`~/.claude/skills/` for Claude Code; check your host's docs for Gemini, Codex, etc.):
 
 ```bash
 curl -L https://github.com/vjcharles/skill-dronetones/releases/latest/download/dronetones.zip -o /tmp/dronetones.zip
 unzip /tmp/dronetones.zip -d ~/.claude/skills/
 ```
 
-That's the whole install for the **interactive tutorial mode**. (If you also want Claude to operate the synth headlessly, install `browser-runner` too: see [`SKILL.md`](SKILL.md) → *First-time setup*.)
+That's the whole install for the **interactive tutorial mode**. (If you also want the agent to operate the synth headlessly, install `browser-runner` too: see [`SKILL.md`](SKILL.md) → *First-time setup*.)
 
-**Begin the tutorial.** In a Claude Code session, type:
+**Two ways in.** Pick the one that matches how you want to use the skill.
+
+*Interactive (you at the GUI, the agent narrates):*
 
 > *"Use the dronetones skill to walk me through the synth."*
 
-Or any close variant: *"teach me dronetones"*, *"let's explore dronetones together"*, *"open dronetones in learn mode"*. Claude will direct you to <https://drone.toneflow.io/>, narrate the panel, and help you shape a drone you like. Hit Play when it tells you to; ask questions as you go.
+Close variants: *"teach me dronetones"*, *"let's explore dronetones together"*, *"open dronetones in learn mode"*. The agent will direct you to <https://drone.toneflow.io/>, narrate the panel, and help you shape a drone you like. Hit Play when it tells you to; ask questions as you go. When you've got a sound: *"capture this as a take"* saves the `.webm` and a recipe JSON.
 
-**Capture the take.** When you've got a sound you want to keep, ask: *"capture this as a take"*. Claude will save the `.webm` audio plus a recipe JSON of every setting, so you can re-summon the same drone later.
+*Agent-driven (the agent operates the synth, you listen):*
+
+> `/dronetones make a tone and show me the file.`
+
+The agent opens the page headlessly, applies a dial, records a take, and hands you the `.webm`. Refine from there in chat: *"more cheerful"*, *"shorter"*, *"deeper bass"* (each turn rolls a new take). Requires `browser-runner` installed too; see [`SKILL.md`](SKILL.md) → *First-time setup*.
 
 ## What this skill teaches an agent
 
